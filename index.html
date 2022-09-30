@@ -50,7 +50,7 @@
         </mark>
         <br>
         <mark>
-            View this tracker: tinyurl.com
+            View this tracker: hheisig51.github.io/IssueTracker/
         </mark>
     </header>
     <br /><br />
@@ -66,9 +66,9 @@
     <script>
         const TABLE_HEADERS = $("#table").html();
         const URGENCY_LABEL_MAP = {
-            3938487428: "High!",
-            3938493162: "Medium",
-            3938495910: "Low",
+            4596797635: "High!",
+            4596799154: "Medium",
+            4596798490: "Low",
         }; // mapping of urgency label ids to display names
         console.log("Table startup!")
         function fillTable() {
@@ -90,7 +90,6 @@
                         }
                         let genesis = luxon.DateTime.fromISO(value.created_at).plus(86400000);
                         let diff = luxon.DateTime.now().minus(genesis.ts);
-                        console.log(diff);
                         let months_t;
                         let days_t;
                         let hours_t;
