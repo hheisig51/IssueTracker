@@ -1,0 +1,150 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="luxon.min.js"></script>
+    <style>
+        header {
+            font-size: x-large;
+            font-weight: bolder;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            text-align: center;
+        }
+
+        mark {
+            background-color: 4C1E4F;
+            color: white;
+            padding: 0.1em 0.2em;
+        }
+
+        table {
+            margin: 0 auto;
+            font-size: large;
+            border: 1px solid #4C1E4F;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        td {
+            background-color: #F7C59F;
+            border: 1px solid black;
+        }
+
+        td {
+            font-weight: bold;
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        td {
+            font-weight: lighter;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <mark>
+            Submit an issue: tinyurl.com/sigma1ssues
+        </mark>
+        <br>
+        <mark>
+            View this tracker: tinyurl.com
+        </mark>
+    </header>
+    <br /><br />
+    <table id='table'>
+        <!-- HEADING FORMATION -->
+        <tr>
+            <th>User</th>
+            <th>Issue Title</th>
+            <th>Urgency</th>
+            <th>Creation Date</th>
+        </tr>
+    </table>
+    <script>
+        const TABLE_HEADERS = $("#table").html();
+        const URGENCY_LABEL_MAP = {
+            3938487428: "High!",
+            3938493162: "Medium",
+            3938495910: "Low",
+        }; // mapping of urgency label ids to display names
+        console.log("Table startup!")
+        function fillTable() {
+            // FETCHING DATA FROM JSON FILE
+            $.getJSON("https://api.github.com/repos/hheisig51/IssueTracker/issues",
+                function (data) {
+                    $('#table').html(TABLE_HEADERS); //clear the previous data
+                    var issue = '';
+                    // ITERATING THROUGH OBJECTS
+                    $.each(data, function (key, value) {
+                        let issue_urgency;
+                        const urgency_labels = value.labels.filter(label => (Object.keys(URGENCY_LABEL_MAP).includes(label.id.toString())))
+                        if (urgency_labels.length < 1) {
+                            // no label categorized as urgency
+                            console.log(`issue ${value.title} has bad urgency (elgible urgencies: ${urgency_labels})`)
+                            issue_urgency = ""
+                        } else {
+                            issue_urgency = URGENCY_LABEL_MAP[urgency_labels[0].id]
+                        }
+                        let genesis = luxon.DateTime.fromISO(value.created_at).plus(86400000);
+                        let diff = luxon.DateTime.now().minus(genesis.ts);
+                        console.log(diff);
+                        let months_t;
+                        let days_t;
+                        let hours_t;
+                        let minutes_t;
+
+                        if (diff.month < 2) {
+                            months_t = ""
+                        } else {
+                            months_c = diff.month - 1;
+                            months_t = months_c + ' ' + 'months' + ',' + ' '
+                        }
+
+                        if (diff.day < 1) {
+                            days_t = ""
+                        } else {
+
+                            days_t = diff.day + ' ' + 'days' + ',' + ' '
+                        }
+
+                        if (diff.hour < 0) {
+                            hours_t = ""
+                        } else {
+                            hours_t = diff.hour + ' ' + 'hours' + ',' + ' '
+                        }
+
+                        if (diff.minute < 1) {
+                            minutes_t = ""
+                        } else {
+                            minutes_t = 'and' + ' ' + diff.minute + ' ' + 'minutes'
+                        }
+
+                        issue += '<tr>';
+                        issue += '<td>' +
+                            value.user.login + '</td>';
+
+                        issue += `<td><a target="_blank" href="${value.html_url}">${value.title}</a></td>`;
+
+                        issue += '<td>' +
+                            issue_urgency + '</td>';
+
+                        issue += '<td>' +
+                            months_t + days_t + hours_t + minutes_t + '</td>';
+                        issue += '</tr>';
+                    });
+
+                    //INSERTING ROWS INTO TABLE 
+                    $('#table').append(issue);
+                });
+        }
+
+        setInterval(fillTable, 10000);
+
+        $(document).ready(fillTable);
+    </script>
+</body>
+
+</html>
